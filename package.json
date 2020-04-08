@@ -1,27 +1,29 @@
 {
   "name": "react-native-get-pixel-color",
   "title": "React Native Get Pixel Color",
-  "version": "1.1.0-alpha.0",
-  "description": "TODO",
+  "version": "1.1.0-alpha.17",
+  "description": "React Native Get Pixel Color",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/github_account/react-native-get-pixel-color.git",
-    "baseUrl": "https://github.com/github_account/react-native-get-pixel-color"
+    "url": "git+https://github.com/dudyn5ky1/react-native-get-pixel-color.git",
+    "baseUrl": "https://github.com/dudyn5ky1/react-native-get-pixel-color"
   },
   "keywords": [
-    "react-native"
+    "react-native",
+    "get-pixel",
+    "get-color",
+    "color",
+    "image",
+    "pixel",
+    "hex",
+    "rgb"
   ],
   "author": {
-    "name": "Your Name",
-    "email": "yourname@email.com"
+    "name": "Maksym Dudynskyi",
+    "email": "hello@dudynskyi.com"
   },
   "license": "MIT",
-  "licenseFilename": "LICENSE",
-  "readmeFilename": "README.md",
   "peerDependencies": {
     "react": "^16.8.1",
     "react-native": ">=0.60.0-rc.0 <1.0.x"
