@@ -15,8 +15,7 @@ or
 `$ yarn add react-native-get-pixel-color`
 
 ## Important note
-
-
+For iOS you should pass the path to the file, however for Android you should pass base64 string of the image. In the near future both implementations would be unified to both use only one of these options.
 
 ## Usage (iOS)
 ```javascript
