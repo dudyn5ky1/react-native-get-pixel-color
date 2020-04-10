@@ -8,7 +8,7 @@ const rgb2hex = rgb => {
 };
 
 export const getHex = (path, options) => new Promise((resolve, reject) => {
-  if (Platform.Os === 'ios') {
+  if (Platform.OS === 'ios') {
     NativeModules.GetPixelColor.getHex(path, options, (err, color) => {
       if (err) {
         return reject(err);
