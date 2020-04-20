@@ -17,6 +17,7 @@ import java.io.File;
 
 public class GetPixelColorModule extends ReactContextBaseJavaModule {
     private final ReactApplicationContext reactContext;
+    private Bitmap bitmap;
 
     public GetPixelColorModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -29,11 +30,21 @@ public class GetPixelColorModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void getRGB(String encodedImage, int x, int y, Callback callback) {
+    public void init(String encodedImage, Callback callback) {
       try {
         final byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
-        final Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-        final int pixel = bitmap.getPixel(x, y);
+        this.bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
+        callback.invoke(null, true);
+      } catch (Exception e) {
+        callback.invoke(e.getMessage());
+      }
+    }
+
+    @ReactMethod
+    public void getRGB(int x, int y, Callback callback) {
+      try {
+        final int pixel = this.bitmap.getPixel(x, y);
 
         final int red = Color.red(pixel);
         final int green = Color.green(pixel);

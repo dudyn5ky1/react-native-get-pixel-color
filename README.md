@@ -21,11 +21,18 @@ For iOS you should pass the path to the file, however for Android you should pas
 ```javascript
 import GetPixelColor from 'react-native-get-pixel-color';
 
-GetPixelColor.getHex(pathToFile, {
-  x: x,
-  y: y,
-})
-  .then(hex => {
+// upload image
+GetPixelColor.init(pathToFile)
+  .then(() => {
+    // your callback if needed
+  })
+  .catch(err => {
+    // Handle errors
+  });
+
+// pick a color at X, Y
+GetPixelColor.pickColorAt(x, y)
+  .then((color) => {
     // HEX color value returned
   })
   .catch(err => {
@@ -37,11 +44,18 @@ GetPixelColor.getHex(pathToFile, {
 ```javascript
 import GetPixelColor from 'react-native-get-pixel-color';
 
-GetPixelColor.getHex(base64, {
-  x: x,
-  y: y,
-})
-  .then(hex => {
+// upload image
+GetPixelColor.init(base64)
+  .then(() => {
+    // your callback if needed
+  })
+  .catch(err => {
+    // Handle errors
+  });
+
+// pick a color at X, Y
+GetPixelColor.pickColorAt(x, y)
+  .then((color) => {
     // HEX color value returned
   })
   .catch(err => {
@@ -52,3 +66,6 @@ GetPixelColor.getHex(base64, {
 ## Disclaimer
 
 At this moment iOS implementation of this module is forked from https://github.com/crispipear/react-native-pixel-color.
+
+The main difference is that we upload an image only once and picking colors by coordinates as many times as we want. 
+In the original implementation the new image was uploaded each time we want to pick 1 pixel

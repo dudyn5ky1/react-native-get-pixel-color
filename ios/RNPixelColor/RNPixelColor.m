@@ -1,6 +1,5 @@
 #import "RNPixelColor.h"
 #import <React/RCTImageLoader.h>
-#import "UIImage+ColorAtPixel.h"
 
 @implementation RNPixelColor
 
@@ -8,11 +7,7 @@
 
 RCT_EXPORT_MODULE();
 
-RCT_EXPORT_METHOD(getHex:(NSString *)path
-                  options:(NSDictionary *)options
-                  callback:(RCTResponseSenderBlock)callback)
-{
-    
+RCT_EXPORT_METHOD(init:(NSString *)path callback:(RCTResponseSenderBlock)callback) {
     [[_bridge moduleForClass:[RCTImageLoader class]] loadImageWithURLRequest:[RCTConvert NSURLRequest:path] callback:^(NSError *error, UIImage *image) {
         if (error || image == nil) { // if couldn't load from bridge create a new UIImage
             if ([path hasPrefix:@"data:"] || [path hasPrefix:@"file:"]) {
@@ -21,42 +16,52 @@ RCT_EXPORT_METHOD(getHex:(NSString *)path
             } else {
                 image = [[UIImage alloc] initWithContentsOfFile:path];
             }
-            
+
             if (image == nil) {
                 callback(@[@"Could not create image from given path.", @""]);
                 return;
             }
         }
-        
-        NSInteger x = [RCTConvert NSInteger:options[@"x"]];
-        NSInteger y = [RCTConvert NSInteger:options[@"y"]];
-        if (options[@"width"] && options[@"height"]) {
-            NSInteger scaledWidth = [RCTConvert NSInteger:options[@"width"]];
-            NSInteger scaledHeight = [RCTConvert NSInteger:options[@"height"]];
-            float originalWidth = image.size.width;
-            float originalHeight = image.size.height;
-            
-            x = x * (originalWidth / scaledWidth);
-            y = y * (originalHeight / scaledHeight);
-            
-        }
-        
-        CGPoint point = CGPointMake(x, y);
-        
-        UIColor *pixelColor = [image colorAtPixel:point];
-        callback(@[[NSNull null], hexStringForColor(pixelColor)]);
-        
+
+        // First get the image into your data buffer
+        CGImageRef imageRef = [image CGImage];
+        NSUInteger width = CGImageGetWidth(imageRef);
+        NSUInteger height = CGImageGetHeight(imageRef);
+        CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+        unsigned char *rawData = (unsigned char*) calloc(height * width * 4, sizeof(unsigned char));
+        NSUInteger bytesPerPixel = 4;
+        NSUInteger bytesPerRow = bytesPerPixel * width;
+        NSUInteger bitsPerComponent = 8;
+        CGContextRef context = CGBitmapContextCreate(rawData, width, height,
+                        bitsPerComponent, bytesPerRow, colorSpace,
+                        kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+        CGColorSpaceRelease(colorSpace);
+        CGContextSetBlendMode(context, kCGBlendModeCopy);
+
+        CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
+        CGContextRelease(context);
+
+        self.bytesPerPixel = bytesPerPixel;
+        self.bytesPerRow = bytesPerRow;
+        self.rawData = rawData;
+
+        callback(@[[NSNull null], @true]);
     }];
 }
 
-NSString * hexStringForColor( UIColor* color ) {
-    const CGFloat *components = CGColorGetComponents(color.CGColor);
-    CGFloat r = components[0];
-    CGFloat g = components[1];
-    CGFloat b = components[2];
-    NSString *hexString=[NSString stringWithFormat:@"#%02X%02X%02X", (int)(r * 255), (int)(g * 255), (int)(b * 255)];
-    
-    return hexString;
+RCT_EXPORT_METHOD(getRGB:(NSInteger)x andY:(NSInteger)y callback:(RCTResponseSenderBlock)callback) {
+   if (self.rawData == nil) {
+       callback(@[@"Image is not set. Please use method init method before", @""]);
+       return;
+    }
+    NSUInteger byteIndex = (self.bytesPerRow * y) + (x * self.bytesPerPixel);
+    int red   = self.rawData[byteIndex];
+    int green = self.rawData[byteIndex + 1];
+    int blue  = self.rawData[byteIndex + 2];
+
+    NSArray *color = @[@(red), @(green), @(blue)];
+
+    callback(@[[NSNull null], color]);
 }
 
 @end
